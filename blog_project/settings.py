@@ -34,12 +34,10 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-secret-for-dev")
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
-
 # Application definition
 
 INSTALLED_APPS = [
     "channels",
-    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,7 +48,6 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'corsheaders',
-    
     'rest_framework_simplejwt',
     "rest_framework_simplejwt.token_blacklist",
     'blog',
@@ -60,7 +57,6 @@ INSTALLED_APPS = [
     'api',
     "Chat",
     "notifications"
-    
 ]
 
 
