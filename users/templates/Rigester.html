@@ -1,0 +1,10 @@
+{%extends "layout.html"%}
+{% block title %}Rigester{% endblock %}
+{% block content%}      
+<h1>Rigester Page</h1>
+    <form action="/user/rigester" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit">Rigester</button>
+    </form>
+{% endblock %}

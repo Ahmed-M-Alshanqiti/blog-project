@@ -1,0 +1,17 @@
+
+
+{% block navBar %}
+    <nav class="Side_Nav_Bar">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href={% url 'account' %}>Account</a></li>
+            <li><a href={% url 'share-post' %}>Share Post</a></li>
+            <li></li>
+        </ul>
+        <a href={% url 'logout' %}>logout</a>
+    </nav>      
+      
+      
+      
+
+{% endblock %}

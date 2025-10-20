@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}My Blog{% endblock %}</title>
+    <script src="{% static 'js/DropDown.js' %} "></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+  <body>
+    
+       {% if user.is_authenticated%}  
+       
+            
+            {% include "navBar.html" %}
+              
+          
+          
+
+        
+       {% endif %} 
+    
+
+    <main class="Main_Content">  
+      {% if user.is_authenticated %}  
+        {% comment %} <p>Welcome, {{ user.username }}!</p> {% endcomment %}
+        {% block content %}
+            {% include "first.html" %}
+        {% endblock content %}
+        {% else %}      
+        <p>Please <a href="/user/login">login</a> to access more features.</p> 
+        <p>Or <a href="">register</a> if you new </p>     
+        {% endif %}
+    </main>
+  </body>
+</html>

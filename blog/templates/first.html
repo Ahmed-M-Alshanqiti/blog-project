@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+
+
+{% block content %}
+  
+      
+      
+      
+      
+      {%if posts %}
+        {% for post in posts %}
+          <div class="post">
+            <img src="" alt="">
+            <h1>{{ post.author.username }}</h1>
+            {{ post.title }}
+            {{ post.content }}
+            <img src="" alt=""></img>
+            {{ post.likes.count }}
+            <label for="">likes</lable>
+            {{ post.created_at }}
+            {% if post.updated_at != None %}
+              <p>Updated at: {{ post.updated_at }}</p>
+            {% endif %}
+            
+          
+          </div>
+        {% endfor %}
+      {% else %}
+      <p>No posts available.</p>
+      {% endif %}
+{% endblock content %}
+
+

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+  
+    <h1>User Account</h1>
+    
+      
+      
+      
+      
+      {%if posts %}
+        {% for post in posts %}
+          <div class="post">
+            <div class="post-header">
+                <img src="" alt="">
+                <div class="dropdown">
+                        <svg class="edit dropdown-toggle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+                            <path d="M320 208C289.1 208 264 182.9 264 152C264 121.1 289.1 96 320 96C350.9 96 376 121.1 376 152C376 182.9 350.9 208 320 208zM320 432C350.9 432 376 457.1 376 488C376 518.9 350.9 544 320 544C289.1 544 264 518.9 264 488C264 457.1 289.1 432 320 432zM376 320C376 350.9 350.9 376 320 376C289.1 376 264 350.9 264 320C264 289.1 289.1 264 320 264C350.9 264 376 289.1 376 320z"/>
+                        </svg>
+
+                       
+                        <div class="dropdown-content">
+                            <a href="">
+                           
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="16" height="16">
+                                <path d="M100.4 417.2C104.5 402.6 112.2 389.3 123 378.5L304.2 197.3L338.1 163.4C354.7 180 389.4 214.7 442.1 267.4L476 301.3L442.1 335.2L260.9 516.4C250.2 527.1 236.8 534.9 222.2 539L94.4 574.6C86.1 576.9 77.1 574.6 71 568.4C64.9 562.2 62.6 553.3 64.9 545L100.4 417.2z"/>
+                            </svg>
+                            Edit
+                            </a>
+                        </div>
+                </div>
+            </div>
+            <div class="post-content">
+                 {{ post.title }}
+                 {{ post.content }}
+
+            </div>
+            <div class="post-footer">
+                <div>
+                    {{ post.likes.count }}
+                    <label for=""><a href="">likes</a></lable>
+                </div>
+                
+                    
+                {% if post.updated_at != None %}
+                    <p>Updated at: {{ post.updated_at }}</p>
+                    {%else%}
+                        <p>Created at: {{ post.created_at }}</p>
+                {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+      <p>No posts available.</p>
+      {% endif %}
+{% endblock content %}

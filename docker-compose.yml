@@ -1,0 +1,68 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: blog_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  redis:
+    image: redis:7
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
+
+  web:
+    build: .
+    command: gunicorn blog_project.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+    expose:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - backend
+
+  asgi:
+    build: .
+    command: daphne -b 0.0.0.0 -p 8001 blog_project.asgi:application
+    volumes:
+      - .:/app
+    expose:
+      - "8001"
+    depends_on:
+      - db
+      - redis
+    networks:
+      - backend
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+      - asgi
+    volumes:
+      - .:/app
+    networks:
+      - backend
+      - proxy
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  backend:
+  proxy:
