@@ -59,11 +59,12 @@ docker-compose up --build
 docker-compose exec web python manage.py migrate
 
 3️⃣ Create a superuser
-docker-compose exec web python manage.py createsuperuser
+
+`docker-compose exec web python manage.py createsuperuser`
 
 4️⃣ Access the app
 
-Django API → http://localhost/api/
+Django API → http://localhost/api/v1/
 
 Admin → http://localhost/admin/
 
