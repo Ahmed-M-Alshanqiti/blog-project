@@ -7,7 +7,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
+      # Keep data persistent
       - postgres_data:/var/lib/postgresql/data
+    # Map the container port 5432 to the host port 5432
+    # This is CRITICAL for your host Django app to connect to the DB
+    ports:
+      - "5432:5432"
     networks:
       - backend
 
@@ -15,49 +20,14 @@ services:
     image: redis:7
     restart: always
     volumes:
+      # Keep data persistent
       - redis_data:/data
-    networks:
-      - backend
-
-  web:
-    build: .
-    command: gunicorn blog_project.wsgi:application --bind 0.0.0.0:8000
-    volumes:
-      - .:/app
-    expose:
-      - "8000:8000"
-    depends_on:
-      - db
-    networks:
-      - backend
-
-  asgi:
-    build: .
-    command: daphne -b 0.0.0.0 -p 8001 blog_project.asgi:application
-    volumes:
-      - .:/app
-    expose:
-      - "8001"
-    depends_on:
-      - db
-      - redis
-    networks:
-      - backend
-
-  nginx:
-    build:
-      context: .
-      dockerfile: Dockerfile.nginx
+    # Map the container port 6379 to the host port 6379
+    # This is CRITICAL for your host Django app to connect to Redis
     ports:
-      - "80:80"
-    depends_on:
-      - web
-      - asgi
-    volumes:
-      - .:/app
+      - "6379:6379"
     networks:
       - backend
-      - proxy
 
 volumes:
   postgres_data:
@@ -65,4 +35,6 @@ volumes:
 
 networks:
   backend:
-  proxy:
+    # Use a bridge network for internal communication, though not strictly
+    # necessary since the host app connects via 'localhost'.
+    driver: bridge
