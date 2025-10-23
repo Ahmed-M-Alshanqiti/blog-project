@@ -208,6 +208,8 @@ MEDIA_URL = "/media/"
 STATIC_ROOT = os.getenv("STATIC_ROOT", BASE_DIR / "staticfiles")
 MEDIA_ROOT = os.getenv("MEDIA_ROOT", BASE_DIR / "media")
 
+LOGOUT_REDIRECT_URL = "/home/"
+
 # ----------------------------------------------------------------------
 # Default Configuration
 # ----------------------------------------------------------------------

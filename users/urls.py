@@ -1,11 +1,15 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import  (
+
+from .views.api_views import  (
     FollowView,
     get_user_profile,
     FollowerShow
 
+)
+from .views.views import(
+    Login_User,
 )
 
 from .auth.auth import (
@@ -24,9 +28,11 @@ router = DefaultRouter()
 urlpatterns = [
     
     path("register/", RegisterView.as_view(), name="register"),
-    path("login/", TokenObtainPairView.as_view(), name="login"),  
+    path("login-api/", TokenObtainPairView.as_view(), name="login-api"), 
+    path("login/", Login_User, name="login-user"), 
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("logout/", LogoutView.as_view(), name="logout"),
+    path("logout/", include("django.contrib.auth.urls")),
+    # path("logout/", logout_user, name="logout-user"),
     path("follow/<int:id>", FollowView.as_view(), name="follow"),
     path('getuser/<int:id>', get_user_profile, name='get_user_profile'),
     path('getusername/<str:username>', get_user_profile, name='get_user_profile_by_username'),

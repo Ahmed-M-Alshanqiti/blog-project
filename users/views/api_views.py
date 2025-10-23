@@ -1,12 +1,17 @@
 from rest_framework import  generics, status,mixins
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .models import Follow
-from .serializers import UserSerializer, FollowSerializer , FollowerSerializer, CreateFollowSerializer
+from ..models import Follow
+from ..serializers import UserSerializer, FollowSerializer , FollowerSerializer, CreateFollowSerializer
 from rest_framework.decorators import api_view
 from django.contrib.auth import get_user_model 
 
 CustomUser = get_user_model() 
+
+
+class Login_to_web_site():
+    permission_classes = [all]
+
 
 class FollowerShow(
     mixins.ListModelMixin,            

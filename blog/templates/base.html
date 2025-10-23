@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}My Blog{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="{% static 'js/DropDown.js' %} "></script>
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
     <link
@@ -24,7 +25,7 @@
         {% endblock content %}
       {% else %}
         <p>
-          Please <a href="{% url 'login'%}">login</a> to access more features.
+          Please <a href="{% url 'login-user'%}">login</a> to access more features.
         </p>
         <p>Or <a href="">register</a> if you new</p>
       {% endif %}
