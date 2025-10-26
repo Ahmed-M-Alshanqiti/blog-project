@@ -3,9 +3,70 @@
 Rigester
 {% endblock %}
 {% block content%}
-  <h1>Rigester Page</h1>
-  <form action="api/v1/user/rigester" method="post">
-    {% csrf_token %} {{ form }}
-    <button type="submit">Rigester</button>
-  </form>
+<div class="flex flex-col justify-center sm:h-screen p-4">
+      <div class="max-w-md w-full mx-auto border border-gray-300 rounded-2xl p-8">
+        <div class="text-center mb-12">
+          <h1 class="text-2xl bold">Rigester</h1>
+        </div>
+
+        <form method="POST" action={% url 'register'%}>
+          {% csrf_token %} 
+          <div class="space-y-6">
+            <div>
+                <label class="text-slate-900 text-sm font-medium mb-2 block">User Name</label>
+                <input class="text-slate-900 bg-white border border-gray-300 w-full text-sm px-4 py-3 rounded-md outline-blue-500" type="text" name="username" maxlength="150" autocapitalize="none" autocomplete="username" autofocus required aria-describedby="id_username_helptext" id="id_username">
+            </div>
+            <div>
+                <label for="id_password1" class="text-slate-900 text-sm font-medium mb-2 block">Password:</label>
+                <input class="text-slate-900 bg-white border border-gray-300 w-full text-sm px-4 py-3 rounded-md outline-blue-500" type="password" name="password1" autocomplete="new-password" required aria-describedby="id_password1_helptext" id="id_password1">
+            </div>
+            <div>
+                <label class="text-slate-900 text-sm font-medium mb-2 block" for="id_password2">Password confirmation:</label>
+                <input class="text-slate-900 bg-white border border-gray-300 w-full text-sm px-4 py-3 rounded-md outline-blue-500" type="password" name="password2" autocomplete="new-password" required aria-describedby="id_password2_helptext" id="id_password2">
+            </div> 
+
+            {% comment %} <div class="flex items-center">
+              <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+              <label for="remember-me" class="text-slate-600 ml-3 block text-sm">
+                I accept the <a href="javascript:void(0);" class="text-blue-600 font-medium hover:underline ml-1">Terms and Conditions</a>
+              </label>
+            </div> {% endcomment %}
+          </div>
+
+          <div class="mt-12">
+            <button type="submit" class="w-full py-3 px-4 text-sm tracking-wider font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none cursor-pointer">
+              Create an account
+            </button>
+          </div>
+          {% if messages %}
+            {% for message in messages %}
+              <p class="text-red-500 text-sm text-center mt-2">{{ message }}</p>
+            {% endfor %}
+          {% endif %}
+          <p class="text-slate-600 text-sm mt-6 text-center">Already have an account? <a href="{% url 'login-user' %}" class="text-blue-600 font-medium hover:underline ml-1">Login here</a></p>
+        </form>
+      </div>
+    </div>
+  
+
+
+
+
+    
 {% endblock %}
+
+
+
+
+            <div class="space-y-6">
+                <label class="text-slate-900 text-sm font-medium mb-2 block">User Name</label>
+                <input class="text-slate-900 bg-white border border-gray-300 w-full text-sm px-4 py-3 rounded-md outline-blue-500" type="text" name="username" maxlength="150" autocapitalize="none" autocomplete="username" autofocus required aria-describedby="id_username_helptext" id="id_username">
+            </div>
+            <div>
+                <label for="id_password1" class="text-slate-900 text-sm font-medium mb-2 block">Password:</label>
+                <input class="text-slate-900 bg-white border border-gray-300 w-full text-sm px-4 py-3 rounded-md outline-blue-500" type="password" name="password1" autocomplete="new-password" required aria-describedby="id_password1_helptext" id="id_password1">
+            </div>
+            <div>
+                <label class="text-slate-900 text-sm font-medium mb-2 block" for="id_password2">Password confirmation:</label>
+                <input class="text-slate-900 bg-white border border-gray-300 w-full text-sm px-4 py-3 rounded-md outline-blue-500" type="password" name="password2" autocomplete="new-password" required aria-describedby="id_password2_helptext" id="id_password2">
+            </div> 

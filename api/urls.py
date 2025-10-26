@@ -23,7 +23,7 @@ chat_urls = [
 urlpatterns = [
     path('', include('blog.urls')),
     path('posts/', include('posts.urls')),
-    path('user/', include('users.urls')),
+    path('user/', include('users.urls.api_urls')),
     path('admin/', admin.site.urls),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

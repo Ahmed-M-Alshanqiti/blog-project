@@ -19,16 +19,16 @@ from django.urls import path ,include
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
-from rest_framework import routers
+# from rest_framework import routers
 
-routes = routers.DefaultRouter()
+# routes = routers.DefaultRouter()
 
-routes.register(r'api/v1' ,'api.urls',basename='api-v1')
-routes.register(r'api-auth/' ,'rest_framework.urls',basename='api-auth')
+# routes.register(r'api/v1' ,'api.urls',basename='api-v1')
+# routes.register(r'api-auth/' ,'rest_framework.urls',basename='api-auth')
 
 
 urlpatterns = [
-    path('', include('blog.urls')),
+    path('home/', include('blog.urls')),
     path('admin/', admin.site.urls),
     # path('api/v1/', include('api.urls')),
     # path('api-auth/',include('rest_framework.urls'))
