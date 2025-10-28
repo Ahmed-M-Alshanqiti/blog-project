@@ -3,8 +3,8 @@ from django.core.cache import cache
 from .models import Post
 from django.dispatch import receiver
 
-@receiver([post_save,post_delete], sender=Post)
-def invalid_the_post_cache(sender, instance,**kwargs):
-    print("clearing the post cache")
+# @receiver([post_save,post_delete], sender=Post)
+# def invalid_the_post_cache(sender, instance,**kwargs):
+#     print("clearing the post cache")
 
-    cache.delete_pattern('*post_list')
+#     cache.delete_pattern('*post_list')

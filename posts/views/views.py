@@ -1,18 +1,20 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.template import loader
-from .models import Post, Comment
-from .utils import send_like_notification
+from ..models import Post, Comment
+from ..utils import send_like_notification
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
-from .serializer import PostSerializer, CommentSerializer
+from ..serializer import PostSerializer, CommentSerializer
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django.contrib import messages
+from ..models import Post, PostContent
 
 def home(request):
-    template = loader.get_template('Home.html')
+    template = loader.get_template('home.html')
     return HttpResponse(template.render())
 
 def sharePost(request):
@@ -64,3 +66,42 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+
+
+def create_post(request):
+    print(request.POST)
+    if request.method == "POST":
+        title = request.POST.get("title", "")
+        post = Post.objects.create(user=request.user, title=title)
+
+        block_types = request.POST.getlist("block_type[]")
+        text_contents = request.POST.getlist("text_content[]")
+        media_files = request.FILES.getlist("media_file[]")
+
+        for i, btype in enumerate(block_types):
+            text_content = text_contents[i] if i < len(text_contents) else ""
+            media_file = media_files[i] if i < len(media_files) else None
+            PostContent.objects.create(
+                post=post,
+                order=i,
+                content_type=btype,
+                text_content=text_content if btype == "text" else "",
+                media_file=media_file if btype != "text" else None,
+            )
+
+        messages.success(request, "Post created successfully!")
+        return redirect("first-page")
+
+    return render(request, "share.html")
+
+
+
+# def Post_show(request):
+#     if request.method == "GET":
+#         queryset = Post.objects.all().order_by('created_at')
+#         print(queryset)
+
+#     else:
+#         Response("no posts yet")    

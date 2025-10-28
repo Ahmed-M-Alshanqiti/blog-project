@@ -31,7 +31,7 @@ urlpatterns = [
     path("login-api/", TokenObtainPairView.as_view(), name="login-api"), 
     # path("login/", Login_User, ), 
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("logout/", include("django.contrib.auth.urls")),
+    # path("logout/", include("django.contrib.auth.urls")),
     # path("logout/", logout_user, name="logout-user"),
     path("follow/<int:id>", FollowView.as_view(), name="follow"),
     path('getuser/<int:id>', get_user_profile, name='get_user_profile'),

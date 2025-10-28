@@ -1,16 +1,130 @@
 {% extends "base.html" %}
-
-
+{% load static %}
+{% block title %}Create Post{% endblock %}
 
 {% block content %}
+<div class="max-w-2xl mx-auto mt-8 p-6 border rounded-md bg-white shadow-sm">
+  <h3 class="font-semibold mb-4 text-xl">Create a Post</h3>
 
-    <form method="POST" action="{% url 'create-post' %}">
-        {% csrf_token %}
-        <input type="text" name="title" placeholder="Enter title" required><br>
-        <textarea name="content" placeholder="Enter content" required></textarea><br>
-        <button type="submit">Share Post</button>
-    </form>
+  <form method="POST" enctype="multipart/form-data" action="{% url 'create_post' %}">
+    {% csrf_token %}
 
+    {% if messages %}
+      {% for message in messages %}
+        <p class="text-red-600 text-sm mb-2">{{ message }}</p>
+      {% endfor %}
+    {% endif %}
 
+    <!-- Post title -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium mb-1">Title (optional)</label>
+      <input type="text" name="title" placeholder="Enter a title" class="w-full p-2 border rounded" />
+    </div>
 
+    <!-- Dynamic content blocks -->
+    <div id="content-blocks" class="space-y-4">
+      <div class="p-4 border rounded block-item">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-sm font-medium">Block #1</span>
+          <button type="button" class="remove-block text-sm text-red-600">Remove</button>
+        </div>
+
+        <div class="mb-2">
+          <label class="block text-xs mb-1">Type</label>
+          <select name="block_type[]" class="p-2 border rounded block-type">
+            <option value="text" selected>Text</option>
+            <option value="image">Image</option>
+            <option value="video">Video</option>
+          </select>
+        </div>
+
+        <!-- Text area -->
+        <div class="text-content">
+          <textarea name="text_content[]" rows="3" class="w-full p-2 border rounded" placeholder="Write something..."></textarea>
+        </div>
+
+        <!-- File upload -->
+        <div class="file-content hidden">
+          <label class="block text-xs mb-1">Upload media</label>
+          <input type="file" name="media_file[]" accept="image/*,video/*" class="file-input" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Add buttons -->
+    <div class="flex gap-2 mt-4">
+      <button type="button" id="add-text" class="px-3 py-1 border rounded">Add Text</button>
+      <button type="button" id="add-image" class="px-3 py-1 border rounded">Add Image</button>
+      <button type="button" id="add-video" class="px-3 py-1 border rounded">Add Video</button>
+    </div>
+
+    <!-- Submit -->
+    <div class="mt-6 flex items-center gap-3">
+      <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded">Create Post</button>
+    </div>
+  </form>
+</div>
+
+<!-- Inline JavaScript for dynamic block management -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const blocksContainer = document.getElementById("content-blocks");
+
+  function addBlock(type = "text") {
+    const blockCount = blocksContainer.children.length + 1;
+    const block = document.createElement("div");
+    block.className = "p-4 border rounded block-item mt-4";
+    block.innerHTML = `
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-sm font-medium">Block #${blockCount}</span>
+        <button type="button" class="remove-block text-sm text-red-600">Remove</button>
+      </div>
+      <div class="mb-2">
+        <label class="block text-xs mb-1">Type</label>
+        <select name="block_type[]" class="p-2 border rounded block-type">
+          <option value="text" ${type === "text" ? "selected" : ""}>Text</option>
+          <option value="image" ${type === "image" ? "selected" : ""}>Image</option>
+          <option value="video" ${type === "video" ? "selected" : ""}>Video</option>
+        </select>
+      </div>
+      <div class="text-content ${type !== "text" ? "hidden" : ""}">
+        <textarea name="text_content[]" rows="3" class="w-full p-2 border rounded" placeholder="Write something..."></textarea>
+      </div>
+      <div class="file-content ${type === "text" ? "hidden" : ""}">
+        <label class="block text-xs mb-1">Upload media</label>
+        <input type="file" name="media_file[]" accept="image/*,video/*" class="file-input" />
+      </div>
+    `;
+    blocksContainer.appendChild(block);
+  }
+
+  function updateBlockVisibility(block) {
+    const type = block.querySelector(".block-type").value;
+    block.querySelector(".text-content").classList.toggle("hidden", type !== "text");
+    block.querySelector(".file-content").classList.toggle("hidden", type === "text");
+  }
+
+  // Event: Add block
+  document.getElementById("add-text").addEventListener("click", () => addBlock("text"));
+  document.getElementById("add-image").addEventListener("click", () => addBlock("image"));
+  document.getElementById("add-video").addEventListener("click", () => addBlock("video"));
+
+  // Event: Change block type
+  blocksContainer.addEventListener("change", (e) => {
+    if (e.target.classList.contains("block-type")) {
+      const block = e.target.closest(".block-item");
+      updateBlockVisibility(block);
+    }
+  });
+
+  // Event: Remove block
+  blocksContainer.addEventListener("click", (e) => {
+    if (e.target.classList.contains("remove-block")) {
+      e.target.closest(".block-item").remove();
+    }
+  });
+});
+</script>
 {% endblock %}
+
+
