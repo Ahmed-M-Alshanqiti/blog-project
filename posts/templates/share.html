@@ -4,127 +4,173 @@
 
 {% block content %}
 <div class="max-w-2xl mx-auto mt-8 p-6 border rounded-md bg-white shadow-sm">
-  <h3 class="font-semibold mb-4 text-xl">Create a Post</h3>
+    <h3 class="font-semibold mb-4 text-xl">Create a Post</h3>
 
-  <form method="POST" enctype="multipart/form-data" action="{% url 'create_post' %}">
-    {% csrf_token %}
+    <form method="POST" enctype="multipart/form-data" action="{% url 'create_post' %}">
+        {% csrf_token %}
 
-    {% if messages %}
-      {% for message in messages %}
-        <p class="text-red-600 text-sm mb-2">{{ message }}</p>
-      {% endfor %}
-    {% endif %}
+        {% if messages %}
+            {% for message in messages %}
+                <p class="text-red-600 text-sm mb-2">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
 
-    <!-- Post title -->
-    <div class="mb-4">
-      <label class="block text-sm font-medium mb-1">Title (optional)</label>
-      <input type="text" name="title" placeholder="Enter a title" class="w-full p-2 border rounded" />
-    </div>
-
-    <!-- Dynamic content blocks -->
-    <div id="content-blocks" class="space-y-4">
-      <div class="p-4 border rounded block-item">
-        <div class="flex justify-between items-center mb-2">
-          <span class="text-sm font-medium">Block #1</span>
-          <button type="button" class="remove-block text-sm text-red-600">Remove</button>
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-1">Title (optional)</label>
+            <input type="text" name="title" placeholder="Enter a title" class="w-full p-2 border rounded" />
         </div>
 
-        <div class="mb-2">
-          <label class="block text-xs mb-1">Type</label>
-          <select name="block_type[]" class="p-2 border rounded block-type">
-            <option value="text" selected>Text</option>
-            <option value="image">Image</option>
-            <option value="video">Video</option>
-          </select>
+        <div id="content-blocks" class="space-y-4">
+            <div class="p-4 border rounded block-item">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-medium">Block #1</span>
+                    <button type="button" class="remove-block text-sm text-red-600 hidden">Remove</button> 
+                </div>
+
+                <div class="mb-2">
+                    <label class="block text-xs mb-1">Type</label>
+                    <select name="block_type[]" class="p-2 border rounded block-type">
+                        <option value="text" selected>Text</option>
+                        <option value="image">Image</option>
+                        <option value="video">Video</option>
+                    </select>
+                </div>
+
+                <div class="text-content">
+                    <textarea name="text_content[]" rows="3" class="w-full p-2 border rounded" placeholder="Write something..."></textarea>
+                </div>
+
+                <div class="file-content hidden">
+                    <label class="block text-xs mb-1">Upload media</label>
+                    <input type="file" name="media_file[]" accept="image/*,video/*" class="file-input" />
+                </div>
+            </div>
         </div>
 
-        <!-- Text area -->
-        <div class="text-content">
-          <textarea name="text_content[]" rows="3" class="w-full p-2 border rounded" placeholder="Write something..."></textarea>
+        <div class="flex gap-2 mt-4">
+            <button type="button" id="add-text" class="px-3 py-1 border rounded">Add Text</button>
+            <button type="button" id="add-image" class="px-3 py-1 border rounded">Add Image</button>
+            <button type="button" id="add-video" class="px-3 py-1 border rounded">Add Video</button>
         </div>
 
-        <!-- File upload -->
-        <div class="file-content hidden">
-          <label class="block text-xs mb-1">Upload media</label>
-          <input type="file" name="media_file[]" accept="image/*,video/*" class="file-input" />
+        <div class="mt-6 flex items-center gap-3">
+            <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded">Create Post</button>
         </div>
-      </div>
-    </div>
-
-    <!-- Add buttons -->
-    <div class="flex gap-2 mt-4">
-      <button type="button" id="add-text" class="px-3 py-1 border rounded">Add Text</button>
-      <button type="button" id="add-image" class="px-3 py-1 border rounded">Add Image</button>
-      <button type="button" id="add-video" class="px-3 py-1 border rounded">Add Video</button>
-    </div>
-
-    <!-- Submit -->
-    <div class="mt-6 flex items-center gap-3">
-      <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded">Create Post</button>
-    </div>
-  </form>
+    </form>
 </div>
 
-<!-- Inline JavaScript for dynamic block management -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-  const blocksContainer = document.getElementById("content-blocks");
+    const blocksContainer = document.getElementById("content-blocks");
 
-  function addBlock(type = "text") {
-    const blockCount = blocksContainer.children.length + 1;
-    const block = document.createElement("div");
-    block.className = "p-4 border rounded block-item mt-4";
-    block.innerHTML = `
-      <div class="flex justify-between items-center mb-2">
-        <span class="text-sm font-medium">Block #${blockCount}</span>
-        <button type="button" class="remove-block text-sm text-red-600">Remove</button>
-      </div>
-      <div class="mb-2">
-        <label class="block text-xs mb-1">Type</label>
-        <select name="block_type[]" class="p-2 border rounded block-type">
-          <option value="text" ${type === "text" ? "selected" : ""}>Text</option>
-          <option value="image" ${type === "image" ? "selected" : ""}>Image</option>
-          <option value="video" ${type === "video" ? "selected" : ""}>Video</option>
-        </select>
-      </div>
-      <div class="text-content ${type !== "text" ? "hidden" : ""}">
-        <textarea name="text_content[]" rows="3" class="w-full p-2 border rounded" placeholder="Write something..."></textarea>
-      </div>
-      <div class="file-content ${type === "text" ? "hidden" : ""}">
-        <label class="block text-xs mb-1">Upload media</label>
-        <input type="file" name="media_file[]" accept="image/*,video/*" class="file-input" />
-      </div>
-    `;
-    blocksContainer.appendChild(block);
-  }
-
-  function updateBlockVisibility(block) {
-    const type = block.querySelector(".block-type").value;
-    block.querySelector(".text-content").classList.toggle("hidden", type !== "text");
-    block.querySelector(".file-content").classList.toggle("hidden", type === "text");
-  }
-
-  // Event: Add block
-  document.getElementById("add-text").addEventListener("click", () => addBlock("text"));
-  document.getElementById("add-image").addEventListener("click", () => addBlock("image"));
-  document.getElementById("add-video").addEventListener("click", () => addBlock("video"));
-
-  // Event: Change block type
-  blocksContainer.addEventListener("change", (e) => {
-    if (e.target.classList.contains("block-type")) {
-      const block = e.target.closest(".block-item");
-      updateBlockVisibility(block);
+    function updateBlockNumbers() {
+        const blocks = blocksContainer.querySelectorAll('.block-item');
+        blocks.forEach((block, index) => {
+            block.querySelector('span.text-sm.font-medium').textContent = `Block #${index + 1}`;
+            
+            // Show/hide remove button based on block count
+            const removeBtn = block.querySelector('.remove-block');
+            if (removeBtn) {
+                removeBtn.classList.toggle('hidden', blocks.length === 1);
+            }
+        });
     }
-  });
-
-  // Event: Remove block
-  blocksContainer.addEventListener("click", (e) => {
-    if (e.target.classList.contains("remove-block")) {
-      e.target.closest(".block-item").remove();
+    
+    // Function to add a new block
+    function addBlock(type = "text") {
+        // Use a timestamp for a unique name suffix
+        const uniqueId = Date.now(); 
+        const blockCount = blocksContainer.children.length + 1;
+        const block = document.createElement("div");
+        block.className = "p-4 border rounded block-item mt-4";
+        
+        block.innerHTML = `
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium">Block #${blockCount}</span>
+                <button type="button" class="remove-block text-sm text-red-600">Remove</button>
+            </div>
+            <div class="mb-2">
+                <label class="block text-xs mb-1">Type</label>
+                <select name="block_type[]" class="p-2 border rounded block-type"> 
+                    <option value="text" ${type === "text" ? "selected" : ""}>Text</option>
+                    <option value="image" ${type === "image" ? "selected" : ""}>Image</option>
+                    <option value="video" ${type === "video" ? "selected" : ""}>Video</option>
+                </select>
+            </div>
+            <div class="text-content ${type !== "text" ? "hidden" : ""}">
+                <textarea name="text_content[]" rows="3" class="w-full p-2 border rounded" placeholder="Write something..."></textarea>
+            </div>
+            <div class="file-content ${type === "text" ? "hidden" : ""}">
+                <label class="block text-xs mb-1">Upload media</label>
+                <input type="file" name="media_file_${uniqueId}" accept="image/*,video/*" class="file-input" />
+            </div>
+        `;
+        blocksContainer.appendChild(block);
+        updateBlockNumbers();
     }
-  });
+
+    function updateBlockVisibility(block) {
+        const type = block.querySelector(".block-type").value;
+        const textContent = block.querySelector(".text-content");
+        const fileContent = block.querySelector(".file-content");
+        
+        textContent.classList.toggle("hidden", type !== "text");
+        fileContent.classList.toggle("hidden", type === "text");
+
+        // KEY: Manage name attribute for text/file inputs to ensure only relevant data is sent
+        const fileInput = fileContent.querySelector(".file-input");
+        const textArea = textContent.querySelector("textarea");
+
+        // Rename the input fields based on visibility. 
+        // This is a cleaner way to ensure the view doesn't process data it shouldn't.
+        if (type === "text") {
+            textArea.name = "text_content[]";
+            fileInput.removeAttribute("name"); // Remove name so it's not sent with an empty value
+        } else {
+            // Assign a unique name to the file input before submit, 
+            // and remove the name from the text area.
+            textArea.removeAttribute("name");
+            
+            // If the file input has no name (e.g., in the initial block), assign a unique one.
+            if (!fileInput.getAttribute("name")) {
+                const uniqueId = Date.now();
+                fileInput.name = `media_file_${uniqueId}`;
+            }
+        }
+    }
+
+    // --- Initialization & Event Handlers ---
+    
+    // 1. Initial setup for the first block (ensures it also works correctly)
+    const initialBlock = blocksContainer.querySelector(".block-item");
+    if (initialBlock) {
+        // Ensure the initial block's elements have unique names/array names
+        updateBlockVisibility(initialBlock); 
+        // Hide the initial remove button
+        initialBlock.querySelector('.remove-block').classList.add('hidden');
+    }
+    updateBlockNumbers();
+
+    // 2. Event: Add block
+    document.getElementById("add-text").addEventListener("click", () => addBlock("text"));
+    document.getElementById("add-image").addEventListener("click", () => addBlock("image"));
+    document.getElementById("add-video").addEventListener("click", () => addBlock("video"));
+
+    // 3. Event: Change block type (uses event delegation)
+    blocksContainer.addEventListener("change", (e) => {
+        if (e.target.classList.contains("block-type")) {
+            const block = e.target.closest(".block-item");
+            updateBlockVisibility(block);
+        }
+    });
+
+    // 4. Event: Remove block (uses event delegation)
+    blocksContainer.addEventListener("click", (e) => {
+        if (e.target.classList.contains("remove-block")) {
+            e.target.closest(".block-item").remove();
+            updateBlockNumbers();
+        }
+    });
 });
 </script>
 {% endblock %}
-
-
