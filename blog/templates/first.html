@@ -1,95 +1,162 @@
 {% extends "base.html" %}
-
-
+{% load static %}
 
 {% block content %}
-  <div class="container mx-auto max-w-2xl py-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Recent Posts</h1>
-        
-        {% if posts %}
-            <div class="flex flex-col gap-10">
-                
-                {% for post in posts %}
-                
-                    <div class="bg-white shadow-xl border border-gray-200 rounded-xl overflow-hidden">
-                        
-                        <div class="p-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                            
-                            <div>
-                                <h2 class="text-2xl font-extrabold text-gray-900 leading-tight">
-                                    {{ post.title|default:"Untitled Post" }}
-                                </h2>
-                                <p class="text-sm text-gray-500 mt-1">
-                                    By <span class="font-semibold text-indigo-600">{{ post.user.username }}</span> 
-                                </p>
-                            </div>
+<div class="container mx-auto max-w-2xl py-8">
+  <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Recent Posts</h1>
 
-                            <div class="flex items-center gap-4 mt-3 sm:mt-0">
-                                <span class="flex items-center gap-1 font-medium text-red-500">
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
-                                    {{ post.likes.count }}
-                                </span>
-                                
-                                <p class="text-sm text-gray-500">
-                                    {{ post.created_at|date:"M j, Y" }}
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="post-content">
-                            {% for block in post.content_blocks.all %}
-                            
-                                {% if block.content_type == 'image' and block.media_file %}
-                                    <div class="content-image overflow-hidden max-h-96">
-                                        <img 
-                                            class="w-full h-full object-cover transition duration-300 ease-in-out hover:scale-[1.01]" 
-                                            src="{{ block.media_file.url }}" 
-                                            alt="{{ post.title }} image {{ block.order }}" 
-                                        />
-                                        {% if block.text_content %}
-                                            <p class="text-xs text-gray-500 px-4 py-2 bg-gray-50">{{ block.text_content|default:"" }}</p>
-                                        {% endif %}
-                                    </div>
-                                    
-                                {% elif block.content_type == 'video' and block.media_file %}
-                                    <div class="content-video p-4">
-                                        <video controls class="w-full max-h-96 rounded-lg shadow-md">
-                                            <source src="{{ block.media_file.url }}" type="video/mp4">
-                                            Your browser does not support the video tag.
-                                        </video>
-                                        {% if block.text_content %}
-                                            <p class="text-sm text-gray-600 mt-2">{{ block.text_content|default:"" }}</p>
-                                        {% endif %}
-                                    </div>
+  {% if posts %}
+    <div class="flex flex-col gap-10">
+      {% for post in posts %}
+        <div class="bg-white shadow-xl border border-gray-200 rounded-xl overflow-hidden"
+             data-post-id="{{ post.id }}">
 
-                                {% elif block.content_type == 'text' and block.text_content %}
-                                    <div class="content-text p-4">
-                                        <p class="text-base text-gray-700 font-light whitespace-pre-wrap">
-                                            {{ block.text_content|linebreaksbr|truncatewords:50 }}
-                                        </p>
-                                    </div>
-                                    
-                                {% endif %}
-                                
-                            {% endfor %}
-                        </div>
-                        
-                        <div class="p-4 border-t border-gray-200 text-sm text-gray-500">
-                            <a href="#" class="font-medium text-indigo-600 hover:text-indigo-800 transition-colors">
-                                Read Full Post &rarr;
-                            </a>
-                        </div>
-
-                    </div>
-                    {% endfor %}
-                
+          <div class="p-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 class="text-2xl font-extrabold text-gray-900 leading-tight">
+                {{ post.title|default:"Untitled Post" }}
+              </h2>
+              <p class="text-sm text-gray-500 mt-1">
+                By <span class="font-semibold text-indigo-600">{{ post.user.username }}</span>
+              </p>
             </div>
-            
-        {% else %}
-            <p class="text-center text-gray-600 mt-10">No posts available.</p>
-        {% endif %}
-        
+
+            <div class="flex items-center gap-4 mt-3 sm:mt-0">
+              <span class="flex items-center gap-1 font-medium text-red-500">
+                <button 
+                    class="like-button" 
+                    data-post-id="{{ post.id }}"
+                    data-like-url="{% url 'post-like-toggle' post.id %}">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                      <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+                <span class="like-counter" id="like-count-{{ post.id }}">{{ post.likes.count }}</span>
+              </span>
+
+              <p class="text-sm text-gray-500">
+                {{ post.created_at|date:"M j, Y" }}
+              </p>
+            </div>
+          </div>
+
+          <div class="post-content">
+            {% for block in post.content_blocks.all %}
+              {% if block.content_type == 'image' and block.media_file %}
+                <div class="content-image overflow-hidden max-h-96">
+                  <img class="w-full h-full object-cover transition duration-300 ease-in-out hover:scale-[1.01]"
+                       src="{{ block.media_file.url }}" alt="{{ post.title }} image {{ block.order }}" />
+                  {% if block.text_content %}
+                    <p class="text-xs text-gray-500 px-4 py-2 bg-gray-50">{{ block.text_content }}</p>
+                  {% endif %}
+                </div>
+
+              {% elif block.content_type == 'video' and block.media_file %}
+                <div class="content-video p-4">
+                  <video controls class="w-full max-h-96 rounded-lg shadow-md">
+                    <source src="{{ block.media_file.url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                  </video>
+                  {% if block.text_content %}
+                    <p class="text-sm text-gray-600 mt-2">{{ block.text_content }}</p>
+                  {% endif %}
+                </div>
+
+              {% elif block.content_type == 'text' and block.text_content %}
+                <div class="content-text p-4">
+                  <p class="text-base text-gray-700 font-light whitespace-pre-wrap">
+                    {{ block.text_content|linebreaksbr|truncatewords:50 }}
+                  </p>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <div class="p-4 border-t border-gray-200 text-sm text-gray-500">
+            <a href="#" class="font-medium text-indigo-600 hover:text-indigo-800 transition-colors">
+              Read Full Post
+            </a>
+          </div>
+        </div>
+      {% endfor %}
     </div>
+  {% else %}
+    <p class="text-center text-gray-600 mt-10">No posts available.</p>
+  {% endif %}
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const getCookie = name => {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  };
+  const csrftoken = getCookie('csrftoken');
+
+  document.querySelectorAll('[data-post-id]').forEach(card => {
+    const postId = card.dataset.postId;
+    const likeBtn = card.querySelector('.like-button');
+    const counter = card.querySelector(`#like-count-${postId}`);
+
+    if (!likeBtn || !counter) {
+      console.warn('Missing button or counter for post', postId);
+      return;
+    }
+
+    const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
+    const wsUrl = `${protocol}${location.host}/ws/posts/${postId}/likes/`;
+    const ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => console.log(`WS connected: ${wsUrl}`);
+    ws.onmessage = e => {
+      const data = JSON.parse(e.data);
+      if (data.type === 'like_count_update') {
+        counter.textContent = data.likes_count;
+      }
+    };
+    ws.onerror = err => console.error('WS error', err);
+    ws.onclose = () => console.log(`WS closed: ${wsUrl}`);
+
+    likeBtn.addEventListener('click', async e => {
+      e.preventDefault();
+
+      const likeUrl = likeBtn.dataset.likeUrl;
+
+      try {
+        const resp = await fetch(likeUrl, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+          },
+          credentials: 'same-origin'
+        });
+
+        if (!resp.ok) {
+          if (resp.status === 403) {
+            alert('You must be logged in to like a post.');
+          } else {
+            console.error('Like failed:', resp.status);
+          }
+          return;
+        }
+
+      } catch (err) {
+        console.error('Fetch error:', err);
+      }
+    });
+  });
+});
+</script>
 {% endblock content %}
-
-
