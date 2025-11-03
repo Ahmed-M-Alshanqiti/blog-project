@@ -4,7 +4,8 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 class NotficationConsumer(AsyncWebsocketConsumer):
     
     async def connect(self):
-        self.group_name = 'notification'
+        self.user = self.scope['user']
+        self.group_name = 'fowllowers_Notfication'
 
         await self.channel_layer.group_add(self.group_name,self.channel_name)
 
@@ -30,7 +31,7 @@ class NotficationConsumer(AsyncWebsocketConsumer):
 
     async def send_message(self,event):
 
-        message = event['message']
+        message = event['actor','Type','message']
 
         await self.send(text_data=json.dumps({'message':message}))
 

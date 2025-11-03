@@ -206,7 +206,7 @@ USE_TZ = True
 STATIC_ROOT = os.getenv("STATIC_ROOT", BASE_DIR / "staticfiles")
 MEDIA_ROOT =  BASE_DIR / "media"
 
-LOGOUT_REDIRECT_URL = "/home/"
+LOGOUT_REDIRECT_URL = "/"
 
 # Serving URLs
 STATIC_URL = "/static/"

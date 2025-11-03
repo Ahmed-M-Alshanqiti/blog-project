@@ -47,14 +47,18 @@
                   <div class="grid mr-4 place-items-center">
                     
                   </div>
-                  Reporting
+                  <a href="">
+                     Chat
+                  </a>
                 </div>
                 <div role="button"
                   class="flex items-center w-full p-3 leading-tight transition-all rounded-lg outline-none text-start hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900">
                   <div class="grid mr-4 place-items-center">
                     
                   </div>
-                  Projects
+                  <a href="">
+                      
+                  </a>
                 </div>
           
   </nav>
@@ -71,7 +75,9 @@
             
           </div>
           <p class="block mr-auto font-sans text-base antialiased font-normal leading-relaxed text-blue-gray-900">
-            E-Commerce
+            <a href="">
+
+            </a>
           </p>
           <span class="ml-4">
           
@@ -86,14 +92,18 @@
               <div class="grid mr-4 place-items-center">
                
               </div>
-              Orders
+              <a href="">
+
+              </a>
             </div>
             <div role="button"
               class="flex items-center w-full p-3 leading-tight transition-all rounded-lg outline-none text-start hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900">
               <div class="grid mr-4 place-items-center">
                
               </div>
-              Products
+              <a href="">
+
+              </a>
             </div>
           </nav>
         </div>
@@ -177,6 +187,28 @@
   </ul>
 </nav>   
 {%endif%}
+
+
+<script>
+  const notficatons_container = document.getElementById('notfications');
+  const socket = new WebSocket('ws://' + window.location.host + 'ws/notification/')
+  
+  socket.onopen = function(){
+    console.log('webSocket Connected')
+  }
+
+  socket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    const message = event.message;
+
+    const notfiction
+
+
+  }
+
+
+
+</script>
 {% endblock %}
 
 
