@@ -10,6 +10,7 @@ class Notification(models.Model):
         ('like', 'Like'),
         ('comment', 'Comment'),
         ('message', 'Message'),
+        ('follow', 'Follow'),
     )
 
     recipient = models.ForeignKey(

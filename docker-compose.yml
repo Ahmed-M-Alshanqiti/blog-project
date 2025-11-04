@@ -29,6 +29,26 @@ services:
     networks:
       - backend
 
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - POSTGRES_DB=blog_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    depends_on:
+      - db
+      - redis
+    networks:
+      - backend    
+
 volumes:
   postgres_data:
   redis_data:
@@ -38,3 +58,4 @@ networks:
     # Use a bridge network for internal communication, though not strictly
     # necessary since the host app connects via 'localhost'.
     driver: bridge
+

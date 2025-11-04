@@ -40,45 +40,68 @@
 
           <!-- User Info -->
           <div class="flex-1 text-center md:text-left">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{ user.get_full_name|default:user.username }}</h1>
-            <p class="text-gray-500">@{{ user.username }}</p>
+  <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
+    {{ profile_user.get_full_name|default:profile_user.username }}
+  </h1>
+  <p class="text-gray-500">@{{ profile_user.username }}</p>
 
-            <!-- Bio -->
-            {% if user.profile.bio %}
-              <p class="mt-2 text-gray-600 max-w-2xl">{{ user.profile.bio }}</p>
-            {% endif %}
-
+  {% if profile_user.profile.bio %}
+    <p class="mt-2 text-gray-600 max-w-2xl">{{ profile_user.profile.bio }}</p>
+  {% endif %}
             <!-- Stats -->
             <div class="flex gap-8 mt-4 justify-center md:justify-start">
-              <div class="text-center">
-                <p class="text-2xl font-bold text-gray-900">{{ user.followers.count }}</p>
-                <p class="text-sm text-gray-500">Followers</p>
-              </div>
-              <div class="text-center">
-                <p class="text-2xl font-bold text-gray-900">{{ user.following.count }}</p>
-                <p class="text-sm text-gray-500">Following</p>
-              </div>
-              <div class="text-center">
-                <p class="text-2xl font-bold text-gray-900">{{ user.posts.count }}</p>
-                <p class="text-sm text-gray-500">Posts</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Create Post Button -->
-          <div class="md:ml-auto">
-            <a href="{% url 'create_post' %}" 
-               class="inline-flex items-center px-6 py-3 bg-emerald-600 text-white font-medium rounded-xl shadow hover:bg-emerald-700 transition">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-              </svg>
-              Create Post
-            </a>
-          </div>
-        </div>
-      </div>
+    <div class="text-center">
+      <p class="text-2xl font-bold text-gray-900"
+         id="followers-count">{{ profile_user.followers_relations.count }}</p>
+      <p class="text-sm text-gray-500">Followers</p>
+    </div>
+    <div class="text-center">
+      <p class="text-2xl font-bold text-gray-900"
+         id="following-count">{{ request.user.following_relations.count }}</p>
+      <p class="text-sm text-gray-500">Following</p>
+    </div>
+    <div class="text-center">
+      <p class="text-2xl font-bold text-gray-900">{{ profile_user.posts.count }}</p>
+      <p class="text-sm text-gray-500">Posts</p>
     </div>
   </div>
+</div>
+
+          <!-- Create Post Button -->
+          <div class="md:ml-auto flex items-center gap-3">
+  {% if profile_user != request.user %}
+    <!-- Follow / Unfollow button (other user) -->
+    {% if profile_user != request.user %}
+  <button id="follow-btn"
+          class="follow-btn inline-flex items-center px-6 py-3 rounded-xl shadow font-medium transition
+                 {% if is_following %}bg-red-600 hover:bg-red-700{% else %}bg-emerald-600 hover:bg-emerald-700{% endif %}"
+          data-user-id="{{ profile_user.id }}">
+    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+    </svg>
+    <span>{{ is_following|yesno:"Unfollow,Follow" }}</span>
+  </button>
+{% else %}
+  <a href="{% url 'create_post' %}"
+     class="inline-flex items-center px-6 py-3 bg-emerald-600 text-white font-medium rounded-xl shadow hover:bg-emerald-700 transition">
+    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+    </svg>
+    Create Post
+  </a>
+{% endif %}
+  {% else %}
+    <!-- Create Post (own profile) -->
+    <a href="{% url 'create_post' %}"
+       class="inline-flex items-center px-6 py-3 bg-emerald-600 text-white font-medium rounded-xl shadow hover:bg-emerald-700 transition">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 4v16m8-8H4"></path>
+      </svg>
+      Create Post
+    </a>
+  {% endif %}
+</div>
 
   <!-- Posts Grid -->
   
@@ -238,5 +261,50 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+document.addEventListener('DOMContentLoaded', () => {
+  const csrftoken = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('csrftoken='))
+    .split('=')[1];
+
+  const followBtn = document.getElementById('follow-btn');
+  if (!followBtn) return;   // not on a foreign profile
+
+  const userId = followBtn.dataset.userId;
+
+  followBtn.addEventListener('click', async () => {
+    try {
+      const resp = await fetch(`/users/follow/${userId}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrftoken,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin'
+      });
+
+      const data = await resp.json();
+
+      // Toggle button
+      const span = followBtn.querySelector('span');
+      if (data.action === 'followed') {
+        span.textContent = 'Unfollow';
+        followBtn.classList.replace('bg-emerald-600', 'bg-red-600');
+        followBtn.classList.replace('hover:bg-emerald-700', 'hover:bg-red-700');
+      } else {
+        span.textContent = 'Follow';
+        followBtn.classList.replace('bg-red-600', 'bg-emerald-600');
+        followBtn.classList.replace('hover:bg-red-700', 'hover:bg-emerald-700');
+      }
+
+      // Update counts
+      document.getElementById('followers-count').textContent = data.followers_count;
+      document.getElementById('following-count').textContent = data.following_count;
+    } catch (e) {
+      console.error('Follow error:', e);
+    }
+  });
+});
+
 </script>
 {% endblock %}
