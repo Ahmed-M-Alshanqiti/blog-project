@@ -49,3 +49,14 @@ def Register_User(request):
 
     return render(request, 'Rigester.html', {'form': form})
 
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def account_view(request):
+    user = request.user
+    posts = user.posts.all().order_by('-created_at')  
+    return render(request, 'account.html', {
+        'user': user,
+        'posts': posts
+    })

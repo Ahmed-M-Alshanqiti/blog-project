@@ -10,7 +10,8 @@ from ..views.api_views import  (
 )
 from ..views.views import(
     Login_User,
-    Register_User
+    Register_User,
+    account_view,
 )
 
 from ..auth.auth import (
@@ -29,6 +30,7 @@ urlpatterns = [
     path("register/", Register_User, name="register"),
     path("login/", Login_User, name="login-user"), 
     path("logout/", include("django.contrib.auth.urls")),
+    path('account/', account_view, name='account'),
     path("follow/<int:id>", FollowView.as_view(), name="follow"),
     path('getuser/<int:id>', get_user_profile, name='get_user_profile'),
     path('getusername/<str:username>', get_user_profile, name='get_user_profile_by_username'),

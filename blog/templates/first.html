@@ -120,11 +120,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     ws.onopen = () => console.log(`WS connected: ${wsUrl}`);
     ws.onmessage = e => {
-      const data = JSON.parse(e.data);
-      if (data.type === 'like_count_update') {
-        counter.textContent = data.likes_count;
-      }
-    };
+    const data = JSON.parse(e.data);
+    if (data.type === 'like_count_update') {
+      counter.textContent = data.likes_count;
+    }
+  };
     ws.onerror = err => console.error('WS error', err);
     ws.onclose = () => console.log(`WS closed: ${wsUrl}`);
 

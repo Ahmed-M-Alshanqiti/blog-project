@@ -1,56 +1,242 @@
 {% extends "base.html" %}
+{% load static %}
+
 
 {% block content %}
-  
-    <h1>User Account</h1>
-    
-      
-      
-      
-      
-      {%if posts %}
-        {% for post in posts %}
-          <div class="post">
-            <div class="post-header">
-                <img src="" alt="">
-                <div class="dropdown">
-                        <svg class="edit dropdown-toggle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
-                            <path d="M320 208C289.1 208 264 182.9 264 152C264 121.1 289.1 96 320 96C350.9 96 376 121.1 376 152C376 182.9 350.9 208 320 208zM320 432C350.9 432 376 457.1 376 488C376 518.9 350.9 544 320 544C289.1 544 264 518.9 264 488C264 457.1 289.1 432 320 432zM376 320C376 350.9 350.9 376 320 376C289.1 376 264 350.9 264 320C264 289.1 289.1 264 320 264C350.9 264 376 289.1 376 320z"/>
-                        </svg>
+<div class="min-h-screen bg-gray-50 w-full">
 
-                       
-                        <div class="dropdown-content">
-                            <a href="">
-                           
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="16" height="16">
-                                <path d="M100.4 417.2C104.5 402.6 112.2 389.3 123 378.5L304.2 197.3L338.1 163.4C354.7 180 389.4 214.7 442.1 267.4L476 301.3L442.1 335.2L260.9 516.4C250.2 527.1 236.8 534.9 222.2 539L94.4 574.6C86.1 576.9 77.1 574.6 71 568.4C64.9 562.2 62.6 553.3 64.9 545L100.4 417.2z"/>
-                            </svg>
-                            Edit
-                            </a>
-                        </div>
-                </div>
-            </div>
-            <div class="post-content">
-                 {{ post.title }}
-                 {{ post.content }}
+  <!-- Profile Header -->
+  <div class="relative">
+    <!-- Banner -->
+    <div class="h-48 md:h-64 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-b-2xl shadow-lg">
+      <!-- Optional: Banner image -->
+      <!-- <img src="{% static 'banner.jpg' %}" class="w-full h-full object-cover rounded-b-2xl"> -->
+    </div>
 
-            </div>
-            <div class="post-footer">
-                <div>
-                    {{ post.likes.count }}
-                    <label for=""><a href="">likes</a></lable>
+    <!-- Profile Info -->
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
+      <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8">
+
+        <div class="flex flex-col md:flex-row items-center md:items-end gap-6">
+          
+          <!-- Profile Picture -->
+          <div class="relative -mt-20 md:-mt-24">
+            <div class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-200">
+              {% if user.profile.picture %}
+                <img src="{{ user.profile.picture.url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+              {% else %}
+                <div class="w-full h-full flex items-center justify-center text-4xl font-bold text-gray-400">
+                  {{ user.username.0|upper }}
                 </div>
-                
-                    
-                {% if post.updated_at != None %}
-                    <p>Updated at: {{ post.updated_at }}</p>
-                    {%else%}
-                        <p>Created at: {{ post.created_at }}</p>
-                {% endif %}
+              {% endif %}
+            </div>
+            <!-- Edit Icon (optional) -->
+            <button class="absolute bottom-2 right-2 bg-indigo-600 text-white p-2 rounded-full shadow hover:bg-indigo-700 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- User Info -->
+          <div class="flex-1 text-center md:text-left">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{ user.get_full_name|default:user.username }}</h1>
+            <p class="text-gray-500">@{{ user.username }}</p>
+
+            <!-- Bio -->
+            {% if user.profile.bio %}
+              <p class="mt-2 text-gray-600 max-w-2xl">{{ user.profile.bio }}</p>
+            {% endif %}
+
+            <!-- Stats -->
+            <div class="flex gap-8 mt-4 justify-center md:justify-start">
+              <div class="text-center">
+                <p class="text-2xl font-bold text-gray-900">{{ user.followers.count }}</p>
+                <p class="text-sm text-gray-500">Followers</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-bold text-gray-900">{{ user.following.count }}</p>
+                <p class="text-sm text-gray-500">Following</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-bold text-gray-900">{{ user.posts.count }}</p>
+                <p class="text-sm text-gray-500">Posts</p>
+              </div>
             </div>
           </div>
-        {% endfor %}
-      {% else %}
-      <p>No posts available.</p>
-      {% endif %}
-{% endblock content %}
+
+          <!-- Create Post Button -->
+          <div class="md:ml-auto">
+            <a href="{% url 'create_post' %}" 
+               class="inline-flex items-center px-6 py-3 bg-emerald-600 text-white font-medium rounded-xl shadow hover:bg-emerald-700 transition">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Create Post
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Posts Grid -->
+  
+    <div class="container mx-auto max-w-2xl py-8">
+  <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Recent Posts</h1>
+
+  {% if posts %}
+    <div class="flex flex-col gap-10">
+      {% for post in posts %}
+        <div class="bg-white shadow-xl border border-gray-200 rounded-xl overflow-hidden"
+             data-post-id="{{ post.id }}">
+
+          <div class="p-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 class="text-2xl font-extrabold text-gray-900 leading-tight">
+                {{ post.title|default:"Untitled Post" }}
+              </h2>
+              <p class="text-sm text-gray-500 mt-1">
+                By <span class="font-semibold text-indigo-600">{{ post.user.username }}</span>
+              </p>
+            </div>
+
+            <div class="flex items-center gap-4 mt-3 sm:mt-0">
+              <span class="flex items-center gap-1 font-medium text-red-500">
+                <button 
+                    class="like-button" 
+                    data-post-id="{{ post.id }}"
+                    data-like-url="{% url 'post-like-toggle' post.id %}">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                      <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+                <span class="like-counter" id="like-count-{{ post.id }}">{{ post.likes.count }}</span>
+              </span>
+
+              <p class="text-sm text-gray-500">
+                {{ post.created_at|date:"M j, Y" }}
+              </p>
+            </div>
+          </div>
+
+          <div class="post-content">
+            {% for block in post.content_blocks.all %}
+              {% if block.content_type == 'image' and block.media_file %}
+                <div class="content-image overflow-hidden max-h-96">
+                  <img class="w-full h-full object-cover transition duration-300 ease-in-out hover:scale-[1.01]"
+                       src="{{ block.media_file.url }}" alt="{{ post.title }} image {{ block.order }}" />
+                  {% if block.text_content %}
+                    <p class="text-xs text-gray-500 px-4 py-2 bg-gray-50">{{ block.text_content }}</p>
+                  {% endif %}
+                </div>
+
+              {% elif block.content_type == 'video' and block.media_file %}
+                <div class="content-video p-4">
+                  <video controls class="w-full max-h-96 rounded-lg shadow-md">
+                    <source src="{{ block.media_file.url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                  </video>
+                  {% if block.text_content %}
+                    <p class="text-sm text-gray-600 mt-2">{{ block.text_content }}</p>
+                  {% endif %}
+                </div>
+
+              {% elif block.content_type == 'text' and block.text_content %}
+                <div class="content-text p-4">
+                  <p class="text-base text-gray-700 font-light whitespace-pre-wrap">
+                    {{ block.text_content|linebreaksbr|truncatewords:50 }}
+                  </p>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <div class="p-4 border-t border-gray-200 text-sm text-gray-500">
+            <a href="#" class="font-medium text-indigo-600 hover:text-indigo-800 transition-colors">
+              Read Full Post
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center text-gray-600 mt-10">No posts available.</p>
+  {% endif %}
+    
+    
+   
+ <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const getCookie = name => {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  };
+  const csrftoken = getCookie('csrftoken');
+
+  document.querySelectorAll('[data-post-id]').forEach(card => {
+    const postId = card.dataset.postId;
+    const likeBtn = card.querySelector('.like-button');
+    const counter = card.querySelector(`#like-count-${postId}`);
+
+    if (!likeBtn || !counter) {
+      console.warn('Missing button or counter for post', postId);
+      return;
+    }
+
+    const protocol = location.protocol === 'https:' ? 'wss://' : 'ws://';
+    const wsUrl = `${protocol}${location.host}/ws/posts/${postId}/likes/`;
+    const ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => console.log(`WS connected: ${wsUrl}`);
+    ws.onmessage = e => {
+    const data = JSON.parse(e.data);
+    if (data.type === 'like_count_update') {
+      counter.textContent = data.likes_count;
+    }
+  };
+    ws.onerror = err => console.error('WS error', err);
+    ws.onclose = () => console.log(`WS closed: ${wsUrl}`);
+
+    likeBtn.addEventListener('click', async e => {
+      e.preventDefault();
+
+      const likeUrl = likeBtn.dataset.likeUrl;
+
+      try {
+        const resp = await fetch(likeUrl, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+          },
+          credentials: 'same-origin'
+        });
+
+        if (!resp.ok) {
+          if (resp.status === 403) {
+            alert('You must be logged in to like a post.');
+          } else {
+            console.error('Like failed:', resp.status);
+          }
+          return;
+        }
+
+      } catch (err) {
+        console.error('Fetch error:', err);
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

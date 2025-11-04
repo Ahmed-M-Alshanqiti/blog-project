@@ -5,9 +5,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.template import loader
 from django.http import HttpResponse
-
 from .. import models as post_models
+from notifications.views import send_notification
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
+
+
+Post = post_models.Post.objects.all()
 # ------------------------------------------------------------------
 # UNUSED DRF IMPORTS – keep for later
 # ------------------------------------------------------------------
@@ -94,27 +99,37 @@ def PostLikeToggleView(request, post_id):
     post = get_object_or_404(post_models.Post, id=post_id)
     user = request.user
 
-    if user in post.likes.all():
+    already_liked = post.likes.filter(id=user.id).exists()
+
+    if already_liked:
         post.likes.remove(user)
         action = "unliked"
+        liked = False
     else:
         post.likes.add(user)
         action = "liked"
+        liked = True
 
-
-    from channels.layers import get_channel_layer
-    from asgiref.sync import async_to_sync
+        if post.user != user:
+            send_notification(
+                recipient=post.user,
+                actor=user,
+                type="like",
+                message=f"@{user.username} liked your post.",
+                post=post
+            )
 
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
-        f"post_likes_{post.pk}",
+        f"post_likes_{post.id}",
         {
-            "type": "like_update",         
+            "type": "like_update",
             "likes_count": post.likes.count()
         }
     )
 
     return JsonResponse({
         "status": action,
+        "liked": liked,
         "likes_count": post.likes.count()
     })

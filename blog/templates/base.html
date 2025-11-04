@@ -14,21 +14,16 @@
     />
   </head>
   <body class="w-full h-screen relative">
-    {% comment %} {% if user.is_authenticated%} 
-     
-    {% endif %} {% endcomment %}
+
     {% include "navBar.html" %}
 
-    <main class="Main_Content w-full h-full pl-52">
+    <main class="Main_Content w-full h-full pl-48">
       
         {% block content %} 
-          {% include "first.html" %}  
+          
         {% endblock content %}
       
-        {% comment %} <p>
-          Please <a href="{% url 'login-user'%}">login</a> to access more features.
-        </p>
-        <p>Or <a href="{% url 'register'%}">register</a> if you new</p> {% endcomment %}
+    
       
     </main>
   </body>
