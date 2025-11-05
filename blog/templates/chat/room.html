@@ -1,0 +1,112 @@
+<!-- templates/chat/room.html -->
+{% extends "base.html" %}
+{% block title %}Chat with {{ other_user.username }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex align-items-center mb-3">
+        <a href="{% url 'chat_inbox' %}" class="btn btn-sm btn-outline-secondary me-2">Back</a>
+        <img src="{% if other_user.profile_picture %}{{ other_user.profile_picture.url }}{% else %}/static/default-avatar.png{% endif %}" 
+             class="rounded-circle me-2" width="40" height="40" alt="{{ other_user.username }}">
+        <h5 class="mb-0">{{ other_user.username }}</h5>
+        <span id="online-status" class="badge bg-success ms-2">Online</span>
+    </div>
+
+    <div id="chat-messages" class="border rounded p-3 mb-3 " style="height: 500px; overflow-y: auto; background: #f8f9fa;">
+        {% for msg in messages %}
+            <div class="d-flex {% if msg.sender == user %}justify-content-end{% else %}justify-content-start{% endif %} mb-3">
+                <div class="p-2 rounded max-width-70 {% if msg.sender == user %}bg-primary text-white{% else %}bg-white border{% endif %}">
+                    {% if msg.text %}
+                        <p class="mb-1">{{ msg.text|linebreaksbr }}</p>
+                    {% endif %}
+                    {% if msg.media %}
+                        {% with ext=msg.media.name|lower|cut:msg.media.name|lower|slice:":-4:" %}
+                            {% if ext in '.jpg,.jpeg,.png,.gif' %}
+                                <img src="{{ msg.media.url }}" class="img-fluid rounded mb-1" style="max-width: 200px;">
+                            {% else %}
+                                <a href="{{ msg.media.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">Download</a>
+                            {% endif %}
+                        {% endwith %}
+                    {% endif %}
+                    <small class="opacity-75 d-block">{{ msg.created_at|time:"H:i" }}</small>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div id="typing-indicator" class="text-muted fst-italic mb-2" style="display: none;">{{ other_user.username }} is typing...</div>
+
+    <form id="message-form" class="d-flex">
+        <input type="text" id="message-input" class="form-control me-2" placeholder="Type a message..." autocomplete="off">
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+</div>
+
+<script>
+    const conversationId = {{ conversation.id }};
+    const currentUser = "{{ user.username }}";
+    const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/' + conversationId + '/');
+    let typingTimer;
+    let isTyping = false;
+
+    document.getElementById('message-form').onsubmit = function(e) {
+        e.preventDefault();
+        const input = document.getElementById('message-input');
+        const message = input.value.trim();
+        if (message) {
+            chatSocket.send(JSON.stringify({ message: message }));
+            input.value = '';
+            isTyping = false;
+        }
+    };
+
+    document.getElementById('message-input').addEventListener('input', function() {
+        if (!isTyping) {
+            chatSocket.send(JSON.stringify({ type: 'typing', typing: true }));
+            isTyping = true;
+        }
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(() => {
+            chatSocket.send(JSON.stringify({ type: 'typing', typing: false }));
+            isTyping = false;
+        }, 1000);
+    });
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const messagesDiv = document.getElementById('chat-messages');
+
+        if (data.type === 'typing') {
+            const indicator = document.getElementById('typing-indicator');
+            indicator.style.display = data.typing ? 'block' : 'none';
+            return;
+        }
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `d-flex mb-3 ${data.sender === currentUser ? 'justify-content-end' : 'justify-content-start'}`;
+
+        let mediaHtml = '';
+        if (data.media) {
+            const ext = data.media.toLowerCase().slice(-4);
+            if (['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) {
+                mediaHtml = `<img src="${data.media}" class="img-fluid rounded mb-1" style="max-width: 200px;">`;
+            } else {
+                mediaHtml = `<a href="${data.media}" target="_blank" class="btn btn-sm btn-outline-secondary">Download</a>`;
+            }
+        }
+
+        msgDiv.innerHTML = `
+            <div class="p-2 rounded max-width-70 ${data.sender === currentUser ? 'bg-primary text-black' : 'bg-white border'}">
+                ${data.message ? '<p class="mb-1">' + data.message.replace(/\n/g, '<br>') + '</p>' : ''}
+                ${mediaHtml}
+                <small class="opacity-75 d-block">${new Date(data.created_at).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</small>
+            </div>
+        `;
+        messagesDiv.appendChild(msgDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    };
+
+    chatSocket.onopen = () => console.log('WebSocket connected');
+    chatSocket.onclose = () => console.log('WebSocket closed');
+</script>
+{% endblock %}

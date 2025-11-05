@@ -1,53 +1,43 @@
+# docker-compose.yml
 services:
   db:
     image: postgres:15
-    restart: always
     environment:
       POSTGRES_DB: blog_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    volumes:
-      # Keep data persistent
-      - postgres_data:/var/lib/postgresql/data
-    # Map the container port 5432 to the host port 5432
-    # This is CRITICAL for your host Django app to connect to the DB
     ports:
       - "5432:5432"
-    networks:
-      - backend
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   redis:
     image: redis:7
-    restart: always
-    volumes:
-      # Keep data persistent
-      - redis_data:/data
-    # Map the container port 6379 to the host port 6379
-    # This is CRITICAL for your host Django app to connect to Redis
     ports:
       - "6379:6379"
-    networks:
-      - backend
 
-  web:
-    build: .
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/app
-    ports:
-      - "8000:8000"
-    environment:
-      - DEBUG=1
-      - POSTGRES_DB=blog_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
-    depends_on:
-      - db
-      - redis
-    networks:
-      - backend    
+
+  # web:
+  #   build: .
+  #   command: python manage.py runserver 0.0.0.0:8000
+  #   volumes:
+  #     - .:/app
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - DEBUG=1
+  #     - POSTGRES_DB=blog_db
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres
+  #     - POSTGRES_HOST=db
+  #     - POSTGRES_PORT=5432
+  #   env_file:               # ADD THIS
+  #   - .env  
+  #   depends_on:
+  #     - db
+  #     - redis
+  #   networks:
+  #     - backend    
 
 volumes:
   postgres_data:

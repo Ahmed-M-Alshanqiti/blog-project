@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from ..forms import CustomUserCreationForm 
 from notifications.views import send_notification
 from django.contrib.auth.decorators import login_required
@@ -11,9 +11,9 @@ from django.shortcuts import get_object_or_404
 from django.db import transaction
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from ..models import  Follow
+from ..models import  Follow ,User
 
-# user = User.objects.all()
+
 
 
 def Login_User(request,user = None):
@@ -48,7 +48,6 @@ def Register_User(request):
             messages.success(request, f"Welcome {user.username}, your account has been created!")
             return redirect('first-page')
         else:
-            # Show form validation errors
             messages.error(request, "Please correct the errors below.")
     else:
         form = CustomUserCreationForm()
@@ -67,7 +66,6 @@ def account_view(request, username=None):
 
     posts = profile_user.posts.all().order_by('-created_at')
 
-    # PRE-CALCULATE if current user follows this profile_user
     is_following = False
     if request.user != profile_user:
         is_following = request.user.following_relations.filter(following=profile_user).exists()
@@ -75,7 +73,7 @@ def account_view(request, username=None):
     return render(request, 'account.html', {
         'profile_user': profile_user,
         'posts': posts,
-        'is_following': is_following,  # ← Pass to template
+        'is_following': is_following,  
     })
 @login_required
 def follow_toggle(request, user_id):
@@ -84,19 +82,18 @@ def follow_toggle(request, user_id):
     if request.user == target:
         return JsonResponse({'error': 'Cannot follow yourself'}, status=400)
 
-    # Use a transaction – safe when many users click at once
     with transaction.atomic():
         follow_obj, created = Follow.objects.get_or_create(
             follower=request.user,
             following=target
         )
-        if not created:                     # already existed → unfollow
+        if not created:                    
             follow_obj.delete()
             action = 'unfollowed'
         else:
             action = 'followed'
 
-            # SEND NOTIFICATION (only when following)
+           
             send_notification(
                 recipient=target,
                 actor=request.user,
@@ -105,7 +102,7 @@ def follow_toggle(request, user_id):
                 post=None
             )
 
-    # Return fresh counts
+
     return JsonResponse({
         'action': action,
         'followers_count': target.followers_relations.count(),

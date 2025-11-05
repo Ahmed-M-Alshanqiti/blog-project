@@ -20,7 +20,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Read from environment variables, providing secure defaults
 SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-secret-for-dev")
 DEBUG = os.getenv("DEBUG", "False") == "True"
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+hosts = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1")
+ALLOWED_HOSTS = [h.strip() for h in hosts.split(",")] if hosts != "*" else ["*"]
 
 # Application definition
 INSTALLED_APPS = [
@@ -97,21 +98,21 @@ TEMPLATES = [
 # ----------------------------------------------------------------------
 
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+# DATABASE_URL = os.getenv("DATABASE_URL")
 
-if DATABASE_URL:
-    DATABASES = {
-        "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)
-    }
-else:
-    DATABASES = {
+# if DATABASE_URL:
+#     DATABASES = {
+#         "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+#     }
+# else:
+DATABASES = {
         "default": {
             "ENGINE": os.getenv("DATABASE_ENGINE", "django.db.backends.postgresql"),
             "NAME": os.getenv("POSTGRES_DB", "postgres"),
             "USER": os.getenv("POSTGRES_USER", "postgres"),
             "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
             # 'localhost' for local development, 'db' for containerized web/asgi services
-            "HOST": os.getenv("DATABASE_HOST", "db"), 
+            "HOST": os.getenv("DATABASE_HOST", "localhost"),
             "PORT": os.getenv("DATABASE_PORT", 5432),
         }
     }
