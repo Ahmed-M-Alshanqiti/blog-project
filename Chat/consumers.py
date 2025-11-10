@@ -1,4 +1,3 @@
-# Chat/consumers.py
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
@@ -79,7 +78,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }
         )
 
-    # ——— EVENT HANDLERS ———
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({
             "sender": event["sender"],

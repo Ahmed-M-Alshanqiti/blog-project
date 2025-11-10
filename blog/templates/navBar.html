@@ -136,9 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
     item.dataset.id = notif.id;
 
     const time = new Date(notif.created_at).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-
+    const URLPATH = `'/users/account/${notif.actor}/'`
     item.innerHTML = `
-      <div class="flex items-start gap-3">
+      <a href=${URLPATH} class="flex items-start gap-3">
         <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs">
           ${notif.type[0].toUpperCase()}
         </div>
@@ -146,12 +146,13 @@ document.addEventListener('DOMContentLoaded', () => {
           <p><strong>@${notif.actor}</strong> ${notif.message}</p>
           <p class="text-xs text-gray-500">${time}</p>
         </div>
-      </div>
+      </a>
     `;
 
     item.addEventListener('click', () => {
       ws.send(JSON.stringify({ type: 'mark_read', id: notif.id }));
       item.classList.add('opacity-60');
+      updateBadge(-1)
     });
 
     list.prepend(item);

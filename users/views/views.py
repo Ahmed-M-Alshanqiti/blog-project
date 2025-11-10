@@ -62,7 +62,7 @@ def account_view(request, username=None):
     if username:
         profile_user = get_object_or_404(User, username=username)
     else:
-        profile_user = request.user
+        profile_user = request.user 
 
     posts = profile_user.posts.all().order_by('-created_at')
 
